@@ -1,7 +1,11 @@
 import createStudent from '@/actions/createStudent'
+import SignInButton from '@/components/SignInButton'
 import getUrl from '@/lib/getUrl'
-import { fetchAllStudents } from '@/mongodb/models/Students'
 import { IStudent } from '@/typings'
+import { getServerSession } from 'next-auth'
+import Image from 'next/image'
+import { authOptions } from './api/auth/[...nextauth]/route'
+import SignOutButton from '@/components/SignOutButton'
 
 export default async function Home() {
 	//getting the url-->for server side url path
@@ -13,6 +17,7 @@ export default async function Home() {
 		}
 	})
 	const students = (await response.json()) as IStudent[]
+	const session = await getServerSession(authOptions)
 
 	return (
 		<main className="p-8 bg-gray-100 min-h-screen flex">
@@ -20,6 +25,23 @@ export default async function Home() {
 				<h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">
 					Student Form
 				</h1>
+
+				<div className="flex justify-between">
+					{!session ? (
+						<SignInButton />
+					) : (
+						<>
+							<SignOutButton />
+							<Image
+								src={session?.user.image || ''}
+								width={50}
+								height={50}
+								alt=""
+								className="rounded-full"
+							/>
+						</>
+					)}
+				</div>
 				<form action={createStudent} className="space-y-5 text-black">
 					<div>
 						<label

@@ -3,38 +3,60 @@ import { Schema, model, models } from 'mongoose'
 import connectDB from '../db'
 
 //Create a Schema for students
-const StudentSchema = new Schema<IStudent>({
-	studentId: {
-		type: String,
-		required: true,
-		unique: true
-	},
-	name: {
-		firstName: {
-			type: String,
-			required: true
+const StudentSchema = new Schema<IStudent>(
+	{
+		studentId: { type: String, required: true, unique: true },
+		name: {
+			firstName: { type: String, required: true },
+			lastName: { type: String, required: true }
 		},
-		lastName: {
-			type: String,
-			required: true
-		}
+		age: { type: Number, required: true },
+		address: {
+			street: String,
+			city: String,
+			state: String,
+			zipCode: String
+		},
+		email: { type: String, required: true, unique: true }
 	},
-	age: {
-		type: Number,
-		required: true
-	},
-	address: {
-		street: String,
-		city: String,
-		state: String,
-		zipCode: String
-	},
-	email: {
-		type: String,
-		required: true,
-		unique: true
+	{
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true }
 	}
-})
+)
+
+// const StudentSchema = new Schema<IStudent>({
+// 	studentId: {
+// 		type: String,
+// 		required: true,
+// 		unique: true
+// 	},
+// 	name: {
+// 		firstName: {
+// 			type: String,
+// 			required: true
+// 		},
+// 		lastName: {
+// 			type: String,
+// 			required: true
+// 		}
+// 	},
+// 	age: {
+// 		type: Number,
+// 		required: true
+// 	},
+// 	address: {
+// 		street: String,
+// 		city: String,
+// 		state: String,
+// 		zipCode: String
+// 	},
+// 	email: {
+// 		type: String,
+// 		required: true,
+// 		unique: true
+// 	}
+// })
 
 // Compile model from schema
 //Singleton pattern
@@ -45,47 +67,85 @@ interface Result<T> {
 	data?: T
 	error?: string
 }
+
 async function addStudent(studentData: IStudent): Promise<Result<IStudent>> {
 	await connectDB()
 	try {
 		const student = new StudentModel(studentData)
-		// console.log('collected student data: ', student)
 		const savedStudent = await student.save()
-		// console.log('saved student data: ', savedStudent)
-		return savedStudent
+		// Immediately convert the MongoDB ObjectId to a string
+		const resultStudent: IStudent = {
+			...savedStudent.toObject(), // Convert the mongoose document to a plain object
+			_id: savedStudent._id.toString() // Ensure _id is converted to string
+		}
+		return { success: true, data: resultStudent }
 	} catch (error: any) {
 		console.error('Failed to add student:', error.message)
 		return { success: false, error: `Failed to add student: ${error.message}` }
-		// return {} as IStudent // Return empty object on failure
 	}
 }
 
+// async function addStudent(studentData: IStudent): Promise<Result<IStudent>> {
+// 	await connectDB()
+// 	try {
+// 		const student = new StudentModel(studentData)
+// 		// console.log('collected student data: ', student)
+// 		const savedStudent = await student.save()
+// 		// console.log('saved student data: ', savedStudent)
+// 		return savedStudent
+// 	} catch (error: any) {
+// 		console.error('Failed to add student:', error.message)
+// 		return { success: false, error: `Failed to add student: ${error.message}` }
+// 		// return {} as IStudent // Return empty object on failure
+// 	}
+// }
+
 //fetch all students
 async function fetchAllStudents(): Promise<IStudent[]> {
-	await connectDB() // Ensure the database connection is ready
-
+	await connectDB()
 	try {
-		const students = await StudentModel.find().lean()
-		// Map fields to conform exactly to IStudent, removing or converting unwanted fields
-		return students.map((student) => ({
+		const rawStudents = await StudentModel.find().lean()
+		const students: IStudent[] = rawStudents.map((student) => ({
+			...student,
+			_id: student._id as string, // Explicit conversion here
 			studentId: student.studentId,
 			name: student.name,
 			age: student.age,
-			email: student.email,
-			address: student.address
-				? {
-						street: student.address.street,
-						city: student.address.city,
-						state: student.address.state,
-						zipCode: student.address.zipCode
-				  }
-				: undefined
+			address: student.address,
+			email: student.email
 		}))
+		return students
 	} catch (error: any) {
 		console.error('Failed to fetch students:', error.message)
 		return []
 	}
 }
+
+// async function fetchAllStudents(): Promise<IStudent[]> {
+// 	await connectDB() // Ensure the database connection is ready
+
+// 	try {
+// 		const students = await StudentModel.find().lean()
+// 		// Map fields to conform exactly to IStudent, removing or converting unwanted fields
+// 		return students.map((student) => ({
+// 			studentId: student.studentId,
+// 			name: student.name,
+// 			age: student.age,
+// 			email: student.email,
+// 			address: student.address
+// 				? {
+// 						street: student.address.street,
+// 						city: student.address.city,
+// 						state: student.address.state,
+// 						zipCode: student.address.zipCode
+// 				  }
+// 				: undefined
+// 		}))
+// 	} catch (error: any) {
+// 		console.error('Failed to fetch students:', error.message)
+// 		return []
+// 	}
+// }
 
 //fetch single student
 async function fetchStudentByEmail(email: string): Promise<IStudent | {}> {

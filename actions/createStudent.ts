@@ -26,7 +26,7 @@ const createStudent = async (formData: FormData) => {
 		// Use the existing addStudent function to handle database operations.
 		//FROM DB SUCCESS CAN BE TRUE OR FALSE, FIND A WAY TO DISPLAY IT TO THE FRONT-END
 		const savedStudentData = await addStudent(studentData)
-		console.log('return from database', savedStudentData)
+		// console.log('return from database', savedStudentData)
 		revalidateTag('students')
 		return savedStudentData // This should be a Mongoose document if addStudent is properly typed.
 	} catch (error: any) {

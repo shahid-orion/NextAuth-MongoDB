@@ -1,4 +1,16 @@
-import { Document } from 'mongoose'
+// import { Document } from 'mongoose'
+import { SessionOptions } from 'next-auth'
+//
+declare module 'next-auth' {
+	interface Session {
+		user: {
+			/** Assuming your user object may already have these, add any that aren't already declared */
+			name?: string
+			email?: string
+			image?: string // Add the image property here
+		}
+	}
+}
 
 // Interfaces for subdocuments and nested objects
 interface IName {
@@ -15,6 +27,7 @@ interface IAddress {
 
 // Main Student Interface
 interface IStudent {
+	_id?: string
 	studentId: string
 	name: IName
 	age: number
