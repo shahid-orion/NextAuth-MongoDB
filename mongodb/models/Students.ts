@@ -3,60 +3,60 @@ import { Schema, model, models } from 'mongoose'
 import connectDB from '../db'
 
 //Create a Schema for students
-const StudentSchema = new Schema<IStudent>(
-	{
-		studentId: { type: String, required: true, unique: true },
-		name: {
-			firstName: { type: String, required: true },
-			lastName: { type: String, required: true }
-		},
-		age: { type: Number, required: true },
-		address: {
-			street: String,
-			city: String,
-			state: String,
-			zipCode: String
-		},
-		email: { type: String, required: true, unique: true }
-	},
-	{
-		toJSON: { virtuals: true },
-		toObject: { virtuals: true }
-	}
-)
-
-// const StudentSchema = new Schema<IStudent>({
-// 	studentId: {
-// 		type: String,
-// 		required: true,
-// 		unique: true
-// 	},
-// 	name: {
-// 		firstName: {
-// 			type: String,
-// 			required: true
+// const StudentSchema = new Schema<IStudent>(
+// 	{
+// 		studentId: { type: String, required: true, unique: true },
+// 		name: {
+// 			firstName: { type: String, required: true },
+// 			lastName: { type: String, required: true }
 // 		},
-// 		lastName: {
-// 			type: String,
-// 			required: true
-// 		}
+// 		age: { type: Number, required: true },
+// 		address: {
+// 			street: String,
+// 			city: String,
+// 			state: String,
+// 			zipCode: String
+// 		},
+// 		email: { type: String, required: true, unique: true }
 // 	},
-// 	age: {
-// 		type: Number,
-// 		required: true
-// 	},
-// 	address: {
-// 		street: String,
-// 		city: String,
-// 		state: String,
-// 		zipCode: String
-// 	},
-// 	email: {
-// 		type: String,
-// 		required: true,
-// 		unique: true
+// 	{
+// 		toJSON: { virtuals: true },
+// 		toObject: { virtuals: true }
 // 	}
-// })
+// )
+
+const StudentSchema = new Schema<IStudent>({
+	studentId: {
+		type: String,
+		required: true,
+		unique: true
+	},
+	name: {
+		firstName: {
+			type: String,
+			required: true
+		},
+		lastName: {
+			type: String,
+			required: true
+		}
+	},
+	age: {
+		type: Number,
+		required: true
+	},
+	address: {
+		street: String,
+		city: String,
+		state: String,
+		zipCode: String
+	},
+	email: {
+		type: String,
+		required: true,
+		unique: true
+	}
+})
 
 // Compile model from schema
 //Singleton pattern
